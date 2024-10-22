@@ -25,13 +25,13 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r backend/attendance/requirements.txt
           pip install -r backend/employee/requirements.txt
-          pip install -r backend/wfhRequest/requirements.txt
+          pip install -r backend/wfhRequests/requirements.txt
           
       - name: Run tests
         run: |
           coverage run -m unittest discover -s backend/attendance -p "unit_test.py"
           coverage run -m unittest discover -s backend/employee -p "unit_test.py"
-          coverage run -m unittest discover -s backend/wfhRequest -p "unit_test.py"
+          coverage run -m unittest discover -s backend/wfhRequests -p "unit_test.py"
           
       - name: Report coverage
         run: |
