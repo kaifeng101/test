@@ -44,7 +44,7 @@ jobs:
 
       - name: Run attendance tests
         run: |
-          cd backend/wfhRequests
+          cd backend/attendance
           coverage run -m unittest unit_test.py
 
       - name: Run employee tests
