@@ -1,0 +1,68 @@
+name: Run Unit Tests
+
+# This workflow runs when code is pushed or a pull request is opened/updated on the main branch
+on:
+  pull_request:
+    types:
+      - closed
+  push:
+    branches:
+      - main
+
+jobs:
+  run-tests-wfhRequest:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout the code
+        uses: actions/checkout@v3
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.8'  # Change this to your preferred Python version
+
+      - name: Install dependencies
+        run: |
+          pip install -r backend/wfhRequest/requirements.txt
+
+      - name: Run unittests
+        run: |
+          python -m unittest discover -s backend/wfhRequest -p "*.py"
+
+  run-tests-employee:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout the code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.8'  # Change this to your preferred Python version
+
+      - name: Install dependencies
+        run: |
+          pip install -r backend/employee/requirements.txt
+
+      - name: Run unittests
+        run: |
+          python -m unittest discover -s backend/employee -p "*.py"
+
+  run-tests-attendance:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout the code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.8'  # Change this to your preferred Python version
+
+      - name: Install dependencies
+        run: |
+          pip install -r backend/attendance/requirements.txt
+
+      - name: Run unittests
+        run: |
+          python -m unittest discover -s backend/attendance -p "*.py"
