@@ -1,6 +1,5 @@
 name: Run Unit Tests
 
-# This workflow runs when code is pushed or a pull request is opened/updated on the main branch
 on:
   pull_request:
     types:
@@ -19,63 +18,30 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.10'  # Change this to your preferred Python version
+          python-version: '3.10'
 
+      - name: Install pytest, coverage, and xdist
+        run: |
+          python -m pip install --upgrade pip
+          pip install pytest pytest-xdist coverage
 
-  run-attendance-tests:
+  run-tests:
     runs-on: ubuntu-latest
-    needs: setup  # Wait for the setup job to complete
+    needs: setup
     steps:
       - name: Checkout the code
         uses: actions/checkout@v3
 
-      - name: Install coverage
-        run: python -m pip install coverage
-
-      - name: Install dependencies for attendance
+      - name: Install dependencies
         run: |
-          cd backend/attendance
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-          python -m coverage run unit_test.py 
+          cd backend
+          for service in attendance employee wfhRequest; do
+            cd $service
+            pip install -r requirements.txt
+            cd ..
+          done
 
-      - name: Run attendance tests
-        run: python -m unittest backend/attendance/unit_test.py
-
-  run-employee-tests:
-    runs-on: ubuntu-latest
-    needs: setup  # Wait for the setup job to complete
-    steps:
-      - name: Checkout the code
-        uses: actions/checkout@v3
-
-      - name: Install coverage
-        run: python -m pip install coverage
-
-      - name: Install dependencies for employee
+      - name: Run tests in parallel
         run: |
-          cd backend/employee
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-
-      - name: Run employee tests
-        run: python -m unittest backend/employee/unit_test.py
-
-  run-wfh-request-tests:
-    runs-on: ubuntu-latest
-    needs: setup  # Wait for the setup job to complete
-    steps:
-      - name: Checkout the code
-        uses: actions/checkout@v3
-
-      - name: Install coverage
-        run: python -m pip install coverage
-
-      - name: Install dependencies for WFH request
-        run: |
-          cd backend/wfhRequest
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-
-      - name: Run WFH request tests
-        run: python -m unittest backend/wfhRequests/unit_test.py
+          cd backend
+          coverage run -m pytest -n auto  # Runs tests in parallel
