@@ -10,7 +10,7 @@ on:
       - main
 
 jobs:
-  run-tests-wfhRequest:
+  run-tests:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout the code
@@ -40,10 +40,16 @@ jobs:
           pip install -r requirements.txt
 
       - name: Run attendance tests
-        run: python -m unittest attendance/unit_test.py
+        run: |
+          cd backend/wfhRequests
+          coverage run -m unittest unit_test.py
 
       - name: Run employee tests
-        run: python -m unittest employee/unit_test.py
+        run: |
+          cd backend/employee
+          coverage run -m unittest unit_test.py
 
       - name: Run WFH request tests
-        run: python -m unittest wfhRequest/unit_test.py
+        run: |
+          cd backend/wfhRequests
+          coverage run -m unittest unit_test.py
