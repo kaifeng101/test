@@ -26,10 +26,8 @@ jobs:
     runs-on: ubuntu-latest
     needs: setup  # Wait for the setup job to complete
     env:
-      WFHREQUEST_URL: ${{ secrets.WFHREQUESTS_URL }}
+      WFHREQUESTS_URL: ${{ secrets.WFHREQUESTS_URL }}
       EMPLOYEE_URL: ${{ secrets.EMPLOYEE_URL }}
-      DATABASE_URI: ${{ secrets.DATABASE_URI }}
-      BROKER_CONNECTION_STRING: ${{ secrets.BROKER_CONNECTION_STRING }}
     steps:
       - name: Checkout the code
         uses: actions/checkout@v3
