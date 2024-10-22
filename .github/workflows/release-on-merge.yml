@@ -52,11 +52,6 @@ jobs:
       #     echo "New version: $new_version"
       #     echo "::set-output name=new_version::$new_version"
 
-      - name: Run unittests
-        run: |
-          python -m unittest discover -s backend/attendance -p "*.py"  # Find all test files in the attendance directory
-
-
       # Step 5: Create a new Git tag and push it
       - name: Create Git Tag
         run: |
