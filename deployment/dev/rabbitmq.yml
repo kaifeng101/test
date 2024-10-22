@@ -1,0 +1,54 @@
+# Deployment for RabbitMQ Management
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rabbitmq-pod
+  namespace: scrum-daddy-dev
+  labels:
+    app: rabbitmq-pod
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: rabbitmq-pod
+  template:
+    metadata:
+      name: rabbitmq-pod
+      labels:
+        app: rabbitmq-pod
+    spec:
+      containers:
+        - name: rabbitmq-container
+          image: rabbitmq:3-management
+          ports:
+            - containerPort: 5672
+      volumes:
+        - name: rabbitmq-config
+          hostPath:
+            path: /path/to/your/config/rabbitmq
+        - name: rabbitmq-data
+          emptyDir: {}
+      restartPolicy: Always
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: rabbitmq-service
+  namespace: scrum-daddy-dev
+  labels:
+    app: rabbitmq-service
+spec:
+  selector:
+    app: rabbitmq-pod
+  ports:
+    - name: rabbitmq
+      protocol: TCP
+      port: 5672
+      targetPort: 5672
+    - name: rabbitmq-management
+      protocol: TCP
+      port: 15672
+      targetPort: 15672
+  type: NodePort

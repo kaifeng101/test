@@ -1,0 +1,71 @@
+# Deployment for employee
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: employee-pod
+  namespace: scrum-daddy-dev
+  labels:
+    app: employee-pod
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: employee-pod
+  template:
+    metadata:
+      name: employee-pod
+      labels:
+        app: employee-pod
+    spec:
+      containers:
+      - name: employee-container
+        image: asia-southeast1-docker.pkg.dev/ancient-lattice-435911-a7/scrum-daddy-dev/employee:latest
+        # imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8080
+        env:
+        - name: DATABASE_URI
+          valueFrom:
+            secretKeyRef:
+              name: employee-database-uri
+              key: EMPLOYEE_DATABASE_URI
+        - name: BROKER_CONNECTION_STRING
+          valueFrom:
+            secretKeyRef:
+              name: rabbit-mq-connection-string
+              key: BROKER_CONNECTION_STRING
+      restartPolicy: Always
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: employee-service
+  namespace: scrum-daddy-dev
+  labels:
+    app: employee-service
+  annotations:
+    cloud.google.com/backend-config: '{"default": "employee-healthcheck-config"}'
+spec:
+  selector:
+    app: employee-pod
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080
+  type: NodePort
+
+---
+apiVersion: cloud.google.com/v1
+kind: BackendConfig
+metadata:
+  name: employee-healthcheck-config
+  namespace: scrum-daddy-dev
+  labels:
+    app: employee-service
+spec:
+  healthCheck:
+    checkIntervalSec: 15
+    port: 8080
+    type: HTTP
+    requestPath: /employees/healthcheck

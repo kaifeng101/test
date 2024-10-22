@@ -1,0 +1,66 @@
+steps:
+  # Step 1: Build Docker Image using Docker Compose
+  - name: 'gcr.io/cloud-builders/docker'
+    id: Build
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        docker compose build attendance
+    dir: './backend'
+
+  # Step 3: Tag Docker Image
+  - name: 'gcr.io/cloud-builders/docker'
+    id: Tag
+    args:
+      - 'tag'
+      - 'backend-attendance:latest'
+      - 'asia-southeast1-docker.pkg.dev/${_PROJECT_ID}/${_REPOSITORY_NAME}/${_IMAGE_NAME}:${_TAG}'
+
+  # Step 4: Push Docker Image to Artifact Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    id: Push
+    args:
+      - 'push'
+      - 'asia-southeast1-docker.pkg.dev/${_PROJECT_ID}/${_REPOSITORY_NAME}/${_IMAGE_NAME}:${_TAG}'
+
+  # Step 5: Authenticate with GKE
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    id: Auth
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        gcloud config set project ${_PROJECT_ID}
+        gcloud container clusters get-credentials ${_CLUSTER_NAME} --zone ${_CLUSTER_ZONE} --project ${_PROJECT_ID}
+
+  # Step 6: Delete Existing Pods
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    id: DeletePods
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        kubectl delete deployment attendance-pod --namespace ${_NAMESPACE} || true
+
+  # Step 7: Apply New Kubernetes Configuration
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    id: ApplyConfig
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        kubectl apply -f deployment/dev/attendance-deployment.yml
+
+
+substitutions:
+  _PROJECT_ID: 'ancient-lattice-435911-a7'
+  _REPOSITORY_NAME: 'scrum-daddy-dev'
+  _IMAGE_NAME: 'attendance'
+  _TAG: 'latest'
+  _CLUSTER_NAME: 'scrum-daddy'
+  _CLUSTER_ZONE: 'asia-southeast1-c'
+  _NAMESPACE: 'scrum-daddy-dev'
+
+options:
+  logging: CLOUD_LOGGING_ONLY  # or use NONE if you don't want logging

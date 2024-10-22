@@ -1,0 +1,63 @@
+# Deployment for employee
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: employee-pod
+  namespace: scrum-daddy
+  labels:
+    app: employee-pod
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: employee-pod
+  template:
+    metadata:
+      name: employee-pod
+      labels:
+        app: employee-pod
+    spec:
+      containers:
+      - name: employee-container
+        image: asia-southeast1-docker.pkg.dev/idyllic-vehicle-429108-b9/scrum-daddy/employee:latest
+        # imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8080
+        env:
+        - name: DATABASE_URI
+          value: "postgresql+psycopg://postgres:admin@/employee?host=35.236.128.218&port=5432"
+      restartPolicy: Always
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: employee-service
+  namespace: scrum-daddy
+  labels:
+    app: employee-service
+  annotations:
+    cloud.google.com/backend-config: '{"default": "employee-healthcheck-config"}'
+spec:
+  selector:
+    app: employee-pod
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080
+  type: NodePort
+
+---
+apiVersion: cloud.google.com/v1
+kind: BackendConfig
+metadata:
+  name: employee-healthcheck-config
+  namespace: scrum-daddy
+  labels:
+    app: employee-service
+spec:
+  healthCheck:
+    checkIntervalSec: 15
+    port: 8080
+    type: HTTP
+    requestPath: /employees/healthcheck

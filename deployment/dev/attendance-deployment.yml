@@ -1,0 +1,71 @@
+# Deployment for attendance
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: attendance-pod
+  namespace: scrum-daddy-dev
+  labels:
+    app: attendance-pod
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: attendance-pod
+  template:
+    metadata:
+      name: attendance-pod
+      labels:
+        app: attendance-pod
+    spec:
+      containers:
+      - name: attendance-container
+        image: asia-southeast1-docker.pkg.dev/ancient-lattice-435911-a7/scrum-daddy-dev/attendance:latest
+        # imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8080
+        env:
+        - name: EMPLOYEE_URL
+          valueFrom:
+            secretKeyRef:
+              name: employee-url
+              key: EMPLOYEE_URL
+        - name: WFHREQUESTS_URL
+          valueFrom:
+            secretKeyRef:
+              name: wfhrequests-url
+              key: WFHREQUESTS_URL
+      restartPolicy: Always
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: attendance-service
+  namespace: scrum-daddy-dev
+  labels:
+    app: attendance-service
+  annotations:
+    cloud.google.com/backend-config: '{"default": "attendance-healthcheck-config"}'
+spec:
+  selector:
+    app: attendance-pod
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080
+  type: NodePort
+
+---
+apiVersion: cloud.google.com/v1
+kind: BackendConfig
+metadata:
+  name: attendance-healthcheck-config
+  namespace: scrum-daddy-dev
+  labels:
+    app: attendance-service
+spec:
+  healthCheck:
+    checkIntervalSec: 15
+    port: 8080
+    type: HTTP
+    requestPath: /attendance/healthcheck

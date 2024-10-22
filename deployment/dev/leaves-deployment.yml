@@ -1,0 +1,66 @@
+# Deployment for leaves
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: leaves-pod
+  namespace: scrum-daddy-dev
+  labels:
+    app: leaves-pod
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: leaves-pod
+  template:
+    metadata:
+      name: leaves-pod
+      labels:
+        app: leaves-pod
+    spec:
+      containers:
+      - name: leaves-container
+        image: asia-southeast1-docker.pkg.dev/ancient-lattice-435911-a7/scrum-daddy-dev/leaves:latest
+        # imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8080
+        env:
+        - name: DATABASE_URI
+          valueFrom:
+            secretKeyRef:
+              name: leaves-database-uri
+              key: LEAVES_DATABASE_URI
+      restartPolicy: Always
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: leaves-service
+  namespace: scrum-daddy-dev
+  labels:
+    app: leaves-service
+  annotations:
+    cloud.google.com/backend-config: '{"default": "leaves-healthcheck-config"}'
+spec:
+  selector:
+    app: leaves-pod
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080
+  type: NodePort
+
+---
+apiVersion: cloud.google.com/v1
+kind: BackendConfig
+metadata:
+  name: leaves-healthcheck-config
+  namespace: scrum-daddy-dev
+  labels:
+    app: leaves-service
+spec:
+  healthCheck:
+    checkIntervalSec: 15
+    port: 8080
+    type: HTTP
+    requestPath: /leaves/healthcheck

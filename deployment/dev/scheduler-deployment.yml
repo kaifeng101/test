@@ -1,0 +1,61 @@
+# Deployment for scheduler
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: scheduler-pod
+  namespace: scrum-daddy-dev
+  labels:
+    app: scheduler-pod
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: scheduler-pod
+  template:
+    metadata:
+      name: scheduler-pod
+      labels:
+        app: scheduler-pod
+    spec:
+      containers:
+      - name: scheduler-container
+        image: asia-southeast1-docker.pkg.dev/ancient-lattice-435911-a7/scrum-daddy-dev/scheduler:latest
+        # imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8080
+        env:
+        - name: UPDATE_STATUS_URL
+          valueFrom:
+            secretKeyRef:
+              name: update-status-url
+              key: UPDATE_STATUS_URL
+        - name: UPDATE_REPORTING_MANAGER_URL
+          valueFrom:
+            secretKeyRef:
+              name: update-reporting-manager-url
+              key: UPDATE_REPORTING_MANAGER_URL
+        - name: BROKER_CONNECTION_STRING
+          valueFrom:
+            secretKeyRef:
+              name: rabbit-mq-connection-string
+              key: BROKER_CONNECTION_STRING
+        - name: C_FORCE_ROOT
+          value: "true"
+      restartPolicy: Always
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: scheduler-service
+  namespace: scrum-daddy-dev
+  labels:
+    app: scheduler-service
+spec:
+  selector:
+    app: scheduler-pod
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080
+  type: NodePort

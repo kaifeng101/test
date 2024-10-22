@@ -1,0 +1,46 @@
+.attendance-tracker-container {
+    padding: 20px;
+    background-color: #f9f9f9;
+  }
+  
+  .attendance-tracker-container h1 {
+    font-size: 24px;
+    color: #333;
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  
+  .MuiTableContainer-root {
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  .MuiTableHead-root {
+    background-color: #f0f0f0;
+  }
+  
+  .MuiTableCell-head {
+    font-weight: bold;
+  }
+  
+  .loading-spinner {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 200px;
+  }
+  
+  .MuiFormControl-root {
+    margin-bottom: 20px;
+  }
+  
+  .pie-chart-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+  }
+  .pie-chart-container >h3 {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+  }
+  

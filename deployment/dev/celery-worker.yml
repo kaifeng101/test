@@ -1,0 +1,64 @@
+
+# Deployment for Celery Worker
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: celery-worker-pod
+  namespace: scrum-daddy-dev
+  labels:
+    app: celery-worker-pod
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: celery-worker-pod
+  template:
+    metadata:
+      name: celery-worker-pod
+      labels:
+        app: celery-worker-pod
+    spec:
+      containers:
+      - name: celery-worker-container
+        image: asia-southeast1-docker.pkg.dev/ancient-lattice-435911-a7/scrum-daddy-dev/celery-worker:latest
+        # imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8080
+        env:
+        - name: C_FORCE_ROOT
+          value: "true"
+        - name: UPDATE_STATUS_URL
+          valueFrom:
+            secretKeyRef:
+              name: update-status-url
+              key: UPDATE_STATUS_URL
+        - name: BACKEND_CONNECTION_STRING
+          valueFrom:
+            secretKeyRef:
+              name: backend-connection-string
+              key: BACKEND_CONNECTION_STRING
+        - name: BROKER_CONNECTION_STRING
+          valueFrom:
+            secretKeyRef:
+              name: rabbit-mq-connection-string
+              key: BROKER_CONNECTION_STRING
+        command: ["celery"]
+        args: ["-A", "tasks", "worker", "--loglevel=info", "--pool=solo"]
+      restartPolicy: Always
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: celery-worker-service
+  namespace: scrum-daddy-dev
+  labels:
+    app: celery-worker-service
+spec:
+  selector:
+    app: celery-worker-pod
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080
+  type: NodePort

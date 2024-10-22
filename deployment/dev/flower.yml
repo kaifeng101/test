@@ -1,0 +1,57 @@
+# Deployment for Flower Management
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: flower-pod
+  namespace: scrum-daddy-dev
+  labels:
+    app: flower-pod
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: flower-pod
+  template:
+    metadata:
+      name: flower-pod
+      labels:
+        app: flower-pod
+    spec:
+      containers:
+        - name: flower-container
+          image: mher/flower
+          ports:
+            - containerPort: 5672
+          env:
+          - name: FLOWER_PORT
+            value: "5555"
+          - name: CELERY_BROKER_URL
+            value: "amqp://guest:guest@rabbitmq-service:5672//"
+          - name: FLOWER_UNAUTHENTICATED_API
+            value: "true"
+      volumes:
+        - name: flower-config
+          hostPath:
+            path: /path/to/your/config/flower
+        - name: flower-data
+          emptyDir: {}
+      restartPolicy: Always
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: flower-service
+  namespace: scrum-daddy-dev
+  labels:
+    app: flower-service
+spec:
+  selector:
+    app: flower-pod
+  ports:
+    - name: flower
+      protocol: TCP
+      port: 5555
+      targetPort: 5555
+  type: NodePort

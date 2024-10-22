@@ -1,0 +1,71 @@
+# Deployment for wfhRequests
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: wfhrequests-pod
+  namespace: scrum-daddy-dev
+  labels:
+    app: wfhrequests-pod
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: wfhrequests-pod
+  template:
+    metadata:
+      name: wfhrequests-pod
+      labels:
+        app: wfhrequests-pod
+    spec:
+      containers:
+      - name: wfhrequests-container
+        image: asia-southeast1-docker.pkg.dev/ancient-lattice-435911-a7/scrum-daddy-dev/wfhrequests:latest
+        # imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8080
+        env:
+        - name: DATABASE_URI
+          valueFrom:
+            secretKeyRef:
+              name: wfhrequests-database-uri
+              key: WFHREQUESTS_DATABASE_URI
+        - name: BROKER_CONNECTION_STRING
+          valueFrom:
+            secretKeyRef:
+              name: rabbit-mq-connection-string
+              key: BROKER_CONNECTION_STRING
+      restartPolicy: Always
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: wfhrequests-service
+  namespace: scrum-daddy-dev
+  labels:
+    app: wfhrequests-service
+  annotations:
+    cloud.google.com/backend-config: '{"default": "wfhrequests-healthcheck-config"}'
+spec:
+  selector:
+    app: wfhrequests-pod
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080
+  type: NodePort
+
+---
+apiVersion: cloud.google.com/v1
+kind: BackendConfig
+metadata:
+  name: wfhrequests-healthcheck-config
+  namespace: scrum-daddy-dev
+  labels:
+    app: wfhrequests-service
+spec:
+  healthCheck:
+    checkIntervalSec: 15
+    port: 8080
+    type: HTTP
+    requestPath: /wfhRequests/healthcheck
