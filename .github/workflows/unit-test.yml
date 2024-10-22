@@ -35,7 +35,7 @@ jobs:
       - name: Install dependencies
         run: |
           cd backend
-          for service in attendance employee wfhRequest; do
+          for service in attendance employee wfhRequests; do
             cd $service
             pip install -r requirements.txt
             cd ..
