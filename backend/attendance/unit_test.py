@@ -1,6 +1,7 @@
 import unittest
 from app import app, get_employee_details
 import json
+import logging
 
 # Note:
 # Modify date for "test_no_wfh_requests()" -> date that have no wfh request
@@ -10,6 +11,9 @@ import json
 class AttendanceServiceTestCase(unittest.TestCase):
     
     def setUp(self):
+        logging.basicConfig(level=logging.DEBUG)
+        self.logger = logging.getLogger('AttendanceServiceTestCase')
+        
         self.app = app.test_client()
         self.app_context = app.app_context()
         self.app_context.push()
@@ -60,7 +64,8 @@ class AttendanceServiceTestCase(unittest.TestCase):
     
     def test_wfh_requests_exist(self):
         response = self.app.get('/attendance/?date=2024-10-30')
-        print(response)
+        self.logger.debug(f"Response status code: {response.status_code}")
+        self.logger.debug(f"Response data: {response.data}")
         self.assertEqual(response.status_code, 200)
         
         data = json.loads(response.data)
