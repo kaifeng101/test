@@ -26,6 +26,7 @@ jobs:
           pip install -r backend/attendance/requirements.txt
           pip install -r backend/employee/requirements.txt
           pip install -r backend/wfhRequests/requirements.txt
+          python -m pip install coverage
           
       - name: Run tests
         run: |
