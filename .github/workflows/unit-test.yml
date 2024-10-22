@@ -26,7 +26,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: setup  # Wait for the setup job to complete
     env:
-      WFH_REQUEST_URL: ${{ secrets.WFH_REQUEST_URL }}
+      WFH_REQUEST_URL: ${{ secrets.WFHREQUESTS_URL }}
       EMPLOYEE_URL: ${{ secrets.EMPLOYEE_URL }}
       DATABASE_URI: ${{ secrets.DATABASE_URI }}
       BROKER_CONNECTION_STRING: ${{ secrets.BROKER_CONNECTION_STRING }}
