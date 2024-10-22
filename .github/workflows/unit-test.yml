@@ -3,8 +3,8 @@ name: Run Unit Tests
 # This workflow runs when code is pushed or a pull request is opened/updated on the main branch
 on:
   pull_request:
-    types:
-      - closed
+    branch:
+      - main
   push:
     branches:
       - main

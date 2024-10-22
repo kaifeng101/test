@@ -1,0 +1,88 @@
+name: Tag and Release on Merge
+
+# Run the workflow when a PR is closed (merged) and when a push occurs on the main branch
+on:
+  pull_request:
+    types:
+      - closed
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write # Grant write permissions to push tags
+
+jobs:
+  tag-and-release:
+    # Run the job only if the PR is merged
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Checkout the repository code
+      - name: Checkout the code
+        uses: actions/checkout@v3
+
+      # Step 2: Set up GitHub CLI to interact with GitHub API
+      - name: Set up GitHub CLI
+        uses: actions/setup-node@v3
+
+      # # Step 3: Fetch the latest Git tag
+      # - name: Get the latest tag
+      #   id: get_latest_tag
+      #   run: |
+      #     git fetch --tags
+      #     # Get the latest tag, or set it to "v0.0.0" if there are no tags
+      #     latest_tag=$(git describe --tags `git rev-list --tags --max-count=1` 2>/dev/null || echo "v0.0.0")
+      #     echo "Latest tag: $latest_tag"
+      #     echo "::set-output name=latest_tag::$latest_tag"
+
+      # # Step 4: Calculate the next version (increments patch by default)
+      # - name: Calculate next version
+      #   id: next_version
+      #   run: |
+      #     # Strip 'v' from tag if present
+      #     latest_tag="${{ steps.get_latest_tag.outputs.latest_tag }}"
+      #     echo "Latest tag: $latest_tag"
+      #     version=${latest_tag#v}
+      #     IFS='.' read -r major minor patch <<<"$version"
+      #     # Increment patch version
+      #     patch=$((patch + 1)) 
+      #     new_version="v$major.$minor.$patch"
+      #     echo "New version: $new_version"
+      #     echo "::set-output name=new_version::$new_version"
+
+      - name: Run unittests
+        run: |
+          python -m unittest discover -s attendance -p "*.py"  # Find all test files in the attendance directory
+
+      # Step 5: Create a new Git tag and push it
+      - name: Create Git Tag
+        run: |
+          new_version="v1.0.0"   
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          git tag $new_version
+          git push origin $new_version
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # Step 6: Create a GitHub release using the new tag
+      - name: Create GitHub Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # GitHub provides this token automatically
+        run: |
+          new_version="v1.0.1"
+          # Customize the release details below
+          release_title="Release $new_version - Edited WFH Request Form"
+          release_notes=$(cat <<EOF
+          ## Changelog
+          - Styled WFH request form into modal
+          - Linked modal to Personal Schedule page
+          - Styled loading spinners for notifications and audit trail pages
+          )
+
+          # Create the GitHub release with the title and release notes
+          gh release create $new_version \
+            --title "$release_title" \
+            --notes "$release_notes"
