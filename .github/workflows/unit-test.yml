@@ -11,6 +11,9 @@ on:
 jobs:
   setup:
     runs-on: ubuntu-latest
+    env:
+      WFH_REQUEST_URL: ${{ secrets.WFH_REQUEST_URL }}
+      EMPLOYEE_URL: ${{ secrets.EMPLOYEE_URL }}
     steps:
       - name: Checkout the code
         uses: actions/checkout@v3
