@@ -21,8 +21,6 @@ jobs:
         with:
           python-version: '3.10'  # Change this to your preferred Python version
 
-      - name: Install coverage
-        run: python -m pip install coverage
 
   run-attendance-tests:
     runs-on: ubuntu-latest
@@ -30,6 +28,9 @@ jobs:
     steps:
       - name: Checkout the code
         uses: actions/checkout@v3
+
+      - name: Install coverage
+        run: python -m pip install coverage
 
       - name: Install dependencies for attendance
         run: |
@@ -49,6 +50,9 @@ jobs:
       - name: Checkout the code
         uses: actions/checkout@v3
 
+      - name: Install coverage
+        run: python -m pip install coverage
+
       - name: Install dependencies for employee
         run: |
           cd backend/employee
@@ -67,6 +71,9 @@ jobs:
       - name: Checkout the code
         uses: actions/checkout@v3
 
+      - name: Install coverage
+        run: python -m pip install coverage
+        
       - name: Install dependencies for WFH request
         run: |
           cd backend/wfhRequest
