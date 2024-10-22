@@ -29,15 +29,12 @@ jobs:
       - name: Checkout the code
         uses: actions/checkout@v3
 
-      - name: Install coverage
-        run: python -m pip install coverage
-
       - name: Install dependencies for attendance
         run: |
           cd backend/attendance
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-          coverage run -m unittest unit_test.py
+          python -m coverage run unit_test.py 
 
       - name: Run attendance tests
         run: python -m unittest backend/attendance/unit_test.py
