@@ -19,50 +19,31 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.8'  # Change this to your preferred Python version
+          python-version: '3.10'  # Change this to your preferred Python version
 
-      - name: Install dependencies
+      - name: Install dependencies for attendance
         run: |
-          pip install -r backend/wfhRequest/requirements.txt
+          cd backend/attendance
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
 
-      - name: Run unittests
+      - name: Install dependencies for employee
         run: |
-          python -m unittest discover -s backend/wfhRequest -p "*.py"
+          cd backend/employee
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
 
-  run-tests-employee:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout the code
-        uses: actions/checkout@v3
-
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.8'  # Change this to your preferred Python version
-
-      - name: Install dependencies
+      - name: Install dependencies for WFH request
         run: |
-          pip install -r backend/employee/requirements.txt
+          cd backend/wfhRequest
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
 
-      - name: Run unittests
-        run: |
-          python -m unittest discover -s backend/employee -p "*.py"
+      - name: Run attendance tests
+        run: python -m unittest attendance/unit_test.py
 
-  run-tests-attendance:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout the code
-        uses: actions/checkout@v3
+      - name: Run employee tests
+        run: python -m unittest employee/unit_test.py
 
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.8'  # Change this to your preferred Python version
-
-      - name: Install dependencies
-        run: |
-          pip install -r backend/attendance/requirements.txt
-
-      - name: Run unittests
-        run: |
-          python -m unittest discover -s backend/attendance -p "*.py"
+      - name: Run WFH request tests
+        run: python -m unittest wfhRequest/unit_test.py
