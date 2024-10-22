@@ -21,6 +21,9 @@ jobs:
         with:
           python-version: '3.10'  # Change this to your preferred Python version
 
+      - name: Install dependencies for main use
+        run: pip install -coverage
+
       - name: Install dependencies for attendance
         run: |
           cd backend/attendance
