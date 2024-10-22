@@ -14,6 +14,8 @@ jobs:
     env:
       WFH_REQUEST_URL: ${{ secrets.WFH_REQUEST_URL }}
       EMPLOYEE_URL: ${{ secrets.EMPLOYEE_URL }}
+      DATABASE_URI: ${{ secrets.DATABASE_URI }}
+      BROKER_CONNECTION_STRING: ${{ secrets.BROKER_CONNECTION_STRING }}
     steps:
       - name: Checkout the code
         uses: actions/checkout@v3
