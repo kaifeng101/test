@@ -60,6 +60,7 @@ class AttendanceServiceTestCase(unittest.TestCase):
     
     def test_wfh_requests_exist(self):
         response = self.app.get('/attendance/?date=2024-10-30')
+        print(response)
         self.assertEqual(response.status_code, 200)
         
         data = json.loads(response.data)
